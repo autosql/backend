@@ -1,5 +1,12 @@
 extends layout
 
-block content
-  h1= title
-  p Welcome to #{title}
+html
+  head
+    title AUTOSQL API
+  body
+    block content
+      h1 Database Health Check
+      h4 Status:
+      p= db_status
+      h4 Message:
+      p= db_message
