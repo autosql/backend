@@ -4,10 +4,36 @@ const Users = require('../models').users;
 const Erds = require('../models').erds;
 const SharedErds = require('../models').shared_erds;
 const SharedUsers = require('../models').shared_users;
+const mysql = require('mysql2');
+
+const dbConfig = require("../config/config");
 
 /* GET home page. */
-router.get('/', function (req, res) {
-  res.render('index', { title: 'Express' });
+router.get('/',function (req, res) {
+  const connection = mysql.createConnection({
+    host: dbConfig.production.host,
+    user: dbConfig.production.username,
+    password: dbConfig.production.password,
+    database: dbConfig.production.database,
+    port: 3306
+  });
+
+  let connection_status = "-"
+  let connection_message = "-"
+
+  connection.connect(error => {
+    console.log("db connect function")
+    if (error) {
+      connection_status = "Failed."
+      connection_message = "Database Connection Failed."
+      res.render('index', { db_status: connection_status, db_message: connection_message });
+    }
+
+    connection_status = "Success!!"
+    res.render('index', { db_status: connection_status, db_message: connection_message });
+  });
+
+  connection.end()
 });
 
 router.get('invite/:email/:userId/:sharedId', function (req, res) {
