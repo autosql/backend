@@ -26,11 +26,11 @@ router.get('/',function (req, res) {
     if (error) {
       connection_status = "Failed."
       connection_message = "Database Connection Failed."
-      res.render('index', { db_status: connection_status, db_message: connection_message, db_info: dbConfig});
+      res.render('index', { db_status: connection_status, db_message: connection_message, db_info: JSON.stringify(dbConfig.production)});
     }
 
     connection_status = "Success!!"
-    res.render('index', { db_status: connection_status, db_message: connection_message });
+    res.render('index', { db_status: connection_status, db_message: connection_message, db_info: JSON.stringify(dbConfig.production) });
   });
 
   connection.end()
