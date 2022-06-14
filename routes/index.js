@@ -8,6 +8,21 @@ const mysql = require('mysql2');
 
 const dbConfig = require("../config/config");
 
+const maskingName = function(strName) {
+  if (strName.length > 2) {
+    let originName = strName.split('');
+    originName.forEach(function(name, i) {
+      if (i === 0 || i === originName.length - 1) return;
+      originName[i] = '*';
+    });
+    let joinName = originName.join();
+    return joinName.replace(/,/g, '');
+  } else {
+    let pattern = /.$/; // 정규식
+    return strName.replace(pattern, '*');
+  }
+};
+
 /* GET home page. */
 router.get('/',function (req, res) {
   const connection = mysql.createConnection({
@@ -20,17 +35,22 @@ router.get('/',function (req, res) {
 
   let connection_status = "-"
   let connection_message = "-"
+  let connection_info = dbConfig.production
+
+  Object.keys(connection_info).map((key, index) => {
+    connection_info[key] = maskingName(connection_info[key])
+  })
 
   connection.connect(error => {
     console.log("db connect function")
     if (error) {
       connection_status = "Failed."
       connection_message = "Database Connection Failed."
-      res.render('index', { db_status: connection_status, db_message: connection_message, db_info: JSON.stringify(dbConfig.production)});
+      res.render('index', { db_status: connection_status, db_message: connection_message, db_info: JSON.stringify(connection_info) });
     }
 
     connection_status = "Success!!"
-    res.render('index', { db_status: connection_status, db_message: connection_message, db_info: JSON.stringify(dbConfig.production) });
+    res.render('index', { db_status: connection_status, db_message: connection_message, db_info: JSON.stringify(connection_info) });
   });
 
   connection.end()
