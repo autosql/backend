@@ -31,15 +31,12 @@ jobs:
         run: |
           echo "JWT_SECRET=$JWT_SECRET" >> .env
       
-      - name: Environment Variable Setting
-        run: |
-          mysql_host=`aws ssm get-parameter --name "/autosql/dev/database/address" | jq ".Parameter.Value" | tr -d '"'`
-          mysql_password=`aws ssm get-parameter --name "/autosql/dev/database/password" --with-decryption | jq ".Parameter.Value" | tr -d '"'`
-      
       - name: Build, tag, and push image to Amazon ECR
         env:
           IMAGE_TAG: "latest"
         run: |
+          mysql_host=`aws ssm get-parameter --name "/autosql/dev/database/address" | jq ".Parameter.Value" | tr -d '"'`
+          mysql_password=`aws ssm get-parameter --name "/autosql/dev/database/password" --with-decryption | jq ".Parameter.Value" | tr -d '"'`
           ECR_REPOSITORY=`aws ssm get-parameter --name "/autosql/dev/backend/repository" | jq ".Parameter.Value" | tr -d '"'`
           docker build -t $ECR_REPOSITORY:$IMAGE_TAG --build-arg mysql_host=$mysql_host --build-arg mysql_password=$mysql_password .
           docker push $ECR_REPOSITORY:$IMAGE_TAG
